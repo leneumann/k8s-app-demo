@@ -13,15 +13,15 @@ show_status() {
     echo ""
     
     echo "📊 HPA Status:"
-    kubectl get hpa myapi-hpa 2>/dev/null || echo "❌ HPA not found"
+    kubectl get hpa myapi-hpa -n k8s-app-demo 2>/dev/null || echo "❌ HPA not found"
     echo ""
     
     echo "🔋 Pod Status:"
-    kubectl get pods -l app=myapi -o wide 2>/dev/null || echo "❌ No pods found"
+    kubectl get pods -l app=myapi -n k8s-app-demo -o wide 2>/dev/null || echo "❌ No pods found"
     echo ""
     
     echo "📈 Pod Count:"
-    POD_COUNT=$(kubectl get pods -l app=myapi --no-headers 2>/dev/null | wc -l)
+    POD_COUNT=$(kubectl get pods -l app=myapi -n k8s-app-demo --no-headers 2>/dev/null | wc -l)
     echo "   Current: ${POD_COUNT} pods"
     echo ""
     

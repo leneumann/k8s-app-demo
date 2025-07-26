@@ -1,4 +1,4 @@
-.PHONY: help setup build deploy logs clean status test dev
+.PHONY: help setup build deploy undeploy logs clean status test dev
 
 # Default target
 help: ## Show this help message
@@ -26,6 +26,11 @@ deploy: ## Deploy application to Kubernetes
 	@echo "🚀 Deploying to Kubernetes..."
 	@./scripts/deploy.sh
 
+undeploy: ## Remove application from Kubernetes
+	@echo "🗑️ Undeploying from Kubernetes..."
+	@kubectl delete namespace k8s-app-demo --ignore-not-found=true
+	@echo "✅ Application undeployed successfully!"
+
 redeploy: build deploy ## Build and deploy in one command
 
 logs: ## Show application logs
@@ -37,11 +42,11 @@ logs-follow: ## Follow application logs
 status: ## Show deployment status
 	@echo "📊 Deployment Status:"
 	@echo "===================="
-	@kubectl get pods -l app=myapi -o wide || echo "No pods found"
+	@kubectl get pods -l app=myapi -n k8s-app-demo -o wide || echo "No pods found"
 	@echo ""
-	@kubectl get services -l app=myapi || echo "No services found"
+	@kubectl get services -l app=myapi -n k8s-app-demo || echo "No services found"
 	@echo ""
-	@kubectl get hpa myapi-hpa || echo "No HPA found"
+	@kubectl get hpa myapi-hpa -n k8s-app-demo || echo "No HPA found"
 	@echo ""
 	@echo "🔍 Registry Status:"
 	@curl -s http://localhost:5000/v2/_catalog | jq '.' 2>/dev/null || echo "Registry not available"
@@ -49,10 +54,10 @@ status: ## Show deployment status
 test: ## Test the deployed application
 	@echo "🧪 Testing deployed application..."
 	@echo "Health check:"
-	@curl -f http://localhost:30080/health || echo "Health check failed"
+	@curl -f http://localhost:30081/health || echo "Health check failed"
 	@echo ""
 	@echo "API test:"
-	@curl -f http://localhost:30080/api/users || echo "API test failed"
+	@curl -f http://localhost:30081/api/users || echo "API test failed"
 
 load-test: ## Generate load to trigger HPA scaling
 	@./scripts/load-test.sh
@@ -93,13 +98,13 @@ registry-ui: ## Open registry browser (if available)
 
 # Kubernetes commands
 k8s-pods: ## Show all pods
-	@kubectl get pods -l app=myapi
+	@kubectl get pods -l app=myapi -n k8s-app-demo
 
 k8s-services: ## Show all services
-	@kubectl get services -l app=myapi
+	@kubectl get services -l app=myapi -n k8s-app-demo
 
 k8s-hpa: ## Show horizontal pod autoscaler status
-	@kubectl get hpa myapi-hpa
+	@kubectl get hpa myapi-hpa -n k8s-app-demo
 
 k8s-watch-scaling: ## Watch HPA and pod scaling in real-time
 	@./scripts/watch-scaling.sh
@@ -108,8 +113,8 @@ k8s-logs: ## Show logs from all pods
 	@./scripts/logs.sh
 
 k8s-describe: ## Describe deployment
-	@kubectl describe deployment myapi-deployment
+	@kubectl describe deployment myapi-deployment -n k8s-app-demo
 
 k8s-port-forward: ## Port forward to a pod (8080:8080)
 	@echo "Port forwarding to pod on localhost:8080..."
-	@kubectl port-forward deployment/myapi-deployment 8080:8080
+	@kubectl port-forward deployment/myapi-deployment 8080:8080 -n k8s-app-demo

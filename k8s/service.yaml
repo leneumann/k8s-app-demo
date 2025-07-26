@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: myapi-service
-  namespace: default
+  namespace: k8s-app-demo
   labels:
     app: myapi
 spec:
@@ -10,7 +10,7 @@ spec:
   ports:
   - port: 80
     targetPort: 8080
-    nodePort: 30080
+    nodePort: 30081
     protocol: TCP
     name: http
   selector:
@@ -21,7 +21,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: myapi-service-internal
-  namespace: default
+  namespace: k8s-app-demo
   labels:
     app: myapi
 spec:

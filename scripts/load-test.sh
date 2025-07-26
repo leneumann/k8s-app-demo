@@ -3,7 +3,7 @@
 set -e
 
 # Configuration
-API_URL="http://localhost:30080"
+API_URL="http://localhost:30081"
 DURATION=${1:-120}  # Default 2 minutes
 CONCURRENT=${2:-10} # Default 10 concurrent requests
 
